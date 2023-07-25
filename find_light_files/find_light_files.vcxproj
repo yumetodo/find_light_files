@@ -74,7 +74,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cmd_line.cpp" />
     <ClCompile Include="find_light_files.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cmd_line.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

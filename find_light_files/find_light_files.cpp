@@ -2,19 +2,32 @@
 //
 
 #include <iostream>
-
-int main()
-{
-    std::cout << "Hello World!\n";
+#include <filesystem>
+#include <string>
+#include <fstream>
+#include <optional>
+#include "cmd_line.hpp"
+namespace fs = std::filesystem;
+namespace {
+    std::optional<std::uint64_t> get_file_line_count_when_fewer(const fs::path& p, std::uint64_t lines_threshold)
+    {
+        if (lines_threshold == 0) return {};
+        std::ifstream file(p);
+        char c;
+        std::uint64_t i = 0;
+        // count LF until line count is equal to lines_threshold
+        while (i < lines_threshold && file.get(c)) if (c == '\n') ++i;
+        if (i == lines_threshold) return {};
+        return i;
+    }
 }
-
-// プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
-// プログラムのデバッグ: F5 または [デバッグ] > [デバッグの開始] メニュー
-
-// 作業を開始するためのヒント: 
-//    1. ソリューション エクスプローラー ウィンドウを使用してファイルを追加/管理します 
-//   2. チーム エクスプローラー ウィンドウを使用してソース管理に接続します
-//   3. 出力ウィンドウを使用して、ビルド出力とその他のメッセージを表示します
-//   4. エラー一覧ウィンドウを使用してエラーを表示します
-//   5. [プロジェクト] > [新しい項目の追加] と移動して新しいコード ファイルを作成するか、[プロジェクト] > [既存の項目の追加] と移動して既存のコード ファイルをプロジェクトに追加します
-//   6. 後ほどこのプロジェクトを再び開く場合、[ファイル] > [開く] > [プロジェクト] と移動して .sln ファイルを選択します
+int main(int argc, char** argv)
+{
+    const auto options = parse_options(argc, argv);
+    for (auto&& entry : fs::recursive_directory_iterator(options.path, fs::directory_options::skip_permission_denied)) {
+        if (!entry.is_regular_file() || entry.path().extension() != options.ext) continue;
+        const auto line_count = get_file_line_count_when_fewer(entry.path(), options.lines_threshold);
+        if (!line_count) continue;
+        std::cout << *line_count << '\t' << entry.path() << std::endl;
+    }
+}

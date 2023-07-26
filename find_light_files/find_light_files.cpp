@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <optional>
+#include <ranges>
 #include "cmd_line.hpp"
 namespace fs = std::filesystem;
 namespace {
@@ -20,15 +21,26 @@ namespace {
         if (i == lines_threshold) return {};
         return i;
     }
+    void scan(const fs::path& target_path, const command_options& options)
+    {
+        for (auto&& entry : fs::directory_iterator(target_path, fs::directory_options::skip_permission_denied)) {
+            const auto relative_path = fs::relative(entry.path(), target_path);
+            if (std::ranges::find(options.exclude_path, relative_path) != options.exclude_path.end()) continue;
+            const auto stat = entry.status();
+            if (stat.type() == fs::file_type::directory) {
+                // 再帰
+                scan(entry.path(), options);
+                continue;
+            }
+            if (stat.type() != fs::file_type::regular || entry.path().extension() != options.ext) continue;
+            const auto line_count = get_file_line_count_when_fewer(entry.path(), options.lines_threshold);
+            if (!line_count) continue;
+            std::cout << *line_count << '\t' << fs::relative(entry.path(), options.path) << std::endl;
+        }
+    }
 }
 int main(int argc, char** argv)
 {
     const auto options = parse_options(argc, argv);
-    const fs::path target_path = options.path;
-    for (auto&& entry : fs::recursive_directory_iterator(target_path, fs::directory_options::skip_permission_denied)) {
-        if (!entry.is_regular_file() || entry.path().extension() != options.ext) continue;
-        const auto line_count = get_file_line_count_when_fewer(entry.path(), options.lines_threshold);
-        if (!line_count) continue;
-        std::cout << *line_count << '\t' << fs::relative(entry.path(), target_path) << std::endl;
-    }
+    scan(options.path, options);
 }

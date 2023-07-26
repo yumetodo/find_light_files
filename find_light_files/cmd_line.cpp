@@ -1,4 +1,4 @@
-#include "cmd_line.hpp"
+﻿#include "cmd_line.hpp"
 #include <string_view>
 #include <iostream>
 #include <cstdlib>
@@ -8,6 +8,7 @@ OPTIONS
 --ext [string] target extension
 --path [path] search target path
 --threshold [integer] line count threshold to list up(only fewer files)
+--exclude-path [path] exclude path. you can apply this multiple times.
 )";
 command_options parse_options(int argc, char** argv)
 {
@@ -29,6 +30,8 @@ command_options parse_options(int argc, char** argv)
         } else if (argv[i] == "--threshold"sv && i + 1 < argc) {
             ret.lines_threshold = std::stoull(argv[i + 1]);
             ++i;
+        } else if (argv[i] == "--exclude-path"sv && i + 1 < argc) {
+            ret.exclude_path.emplace_back(argv[i + 1]);
         }
     }
     if (ret.ext.empty() || ret.path.empty()) {

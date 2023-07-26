@@ -1,4 +1,4 @@
-﻿#include "cmd_line.hpp"
+#include "cmd_line.hpp"
 #include <string_view>
 #include <iostream>
 #include <cstdlib>
@@ -20,13 +20,13 @@ command_options parse_options(int argc, char** argv)
     ret.lines_threshold = default_lines_threshold;
 
     for (int i = 0; i < argc; ++i) {
-        if (argv[i] == "--ext"sv && i + 2 < argc) {
+        if (argv[i] == "--ext"sv && i + 1 < argc) {
             ret.ext = argv[i + 1][0] == '.' ? argv[i + 1] : "."s + argv[i + 1];
             ++i;
-        } else if (argv[i] == "--path"sv && i + 2 < argc) {
+        } else if (argv[i] == "--path"sv && i + 1 < argc) {
             ret.path = argv[i + 1];
             ++i;
-        } else if (argv[i] == "--threshold"sv && i + 2 < argc) {
+        } else if (argv[i] == "--threshold"sv && i + 1 < argc) {
             ret.lines_threshold = std::stoull(argv[i]);
             ++i;
         }

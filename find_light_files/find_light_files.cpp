@@ -24,10 +24,11 @@ namespace {
 int main(int argc, char** argv)
 {
     const auto options = parse_options(argc, argv);
-    for (auto&& entry : fs::recursive_directory_iterator(options.path, fs::directory_options::skip_permission_denied)) {
+    const fs::path target_path = options.path;
+    for (auto&& entry : fs::recursive_directory_iterator(target_path, fs::directory_options::skip_permission_denied)) {
         if (!entry.is_regular_file() || entry.path().extension() != options.ext) continue;
         const auto line_count = get_file_line_count_when_fewer(entry.path(), options.lines_threshold);
         if (!line_count) continue;
-        std::cout << *line_count << '\t' << entry.path() << std::endl;
+        std::cout << *line_count << '\t' << fs::relative(entry.path(), target_path) << std::endl;
     }
 }

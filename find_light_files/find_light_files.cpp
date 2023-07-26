@@ -6,7 +6,6 @@
 #include <string>
 #include <fstream>
 #include <optional>
-#include <ranges>
 #include "cmd_line.hpp"
 namespace fs = std::filesystem;
 namespace {
@@ -25,7 +24,7 @@ namespace {
     {
         for (auto&& entry : fs::directory_iterator(target_path, fs::directory_options::skip_permission_denied)) {
             const auto relative_path = fs::relative(entry.path(), target_path);
-            if (std::ranges::find(options.exclude_path, relative_path) != options.exclude_path.end()) continue;
+            if (options.exclude_path.contains(relative_path)) continue;
             const auto stat = entry.status();
             if (stat.type() == fs::file_type::directory) {
                 // 再帰

@@ -31,7 +31,7 @@ command_options parse_options(int argc, char** argv)
             ret.lines_threshold = std::stoull(argv[i + 1]);
             ++i;
         } else if (argv[i] == "--exclude-path"sv && i + 1 < argc) {
-            ret.exclude_path.emplace_back(argv[i + 1]);
+            ret.exclude_path.emplace(argv[i + 1]);
         }
     }
     if (ret.ext.empty() || ret.path.empty()) {

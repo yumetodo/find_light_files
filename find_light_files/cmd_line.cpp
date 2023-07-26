@@ -27,7 +27,7 @@ command_options parse_options(int argc, char** argv)
             ret.path = argv[i + 1];
             ++i;
         } else if (argv[i] == "--threshold"sv && i + 1 < argc) {
-            ret.lines_threshold = std::stoull(argv[i]);
+            ret.lines_threshold = std::stoull(argv[i + 1]);
             ++i;
         }
     }

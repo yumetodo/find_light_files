@@ -2,6 +2,8 @@
 #include <string_view>
 #include <iostream>
 #include <cstdlib>
+#include <charconv>
+#include <string_view>
 constexpr std::uint64_t default_lines_threshold = 12;
 constexpr const char* help_text = R"(find_light_files [options]
 OPTIONS
@@ -28,7 +30,10 @@ command_options parse_options(int argc, char** argv)
             ret.path = argv[i + 1];
             ++i;
         } else if (argv[i] == "--threshold"sv && i + 1 < argc) {
-            ret.lines_threshold = std::stoull(argv[i + 1]);
+            std::string_view sv = argv[i + 1];
+            decltype(ret.lines_threshold) lines_threshold = 0;
+            if (auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), lines_threshold); ec != std::errc{}) continue;
+            ret.lines_threshold = lines_threshold;
             ++i;
         } else if (argv[i] == "--exclude-path"sv && i + 1 < argc) {
             ret.exclude_path.emplace(argv[i + 1]);
